@@ -19,12 +19,29 @@ router.put("/:id", async (req, res) => {
 
 //ユーザー情報の取得
 router.get("/:id", async (req, res) => {
+  console.log("ユーザー情報取得リクエスト:", {
+    userId: req.params.id,
+  });
   try {
     const user = await User.findById(req.params.id);
+    if (!user) {
+      console.log("ユーザーが見つかりません:", req.params.id);
+      return res.status(404).json("ユーザーが見つかりません");
+    }
+
+    console.log("ユーザー情報取得成功:", {
+      userId: user._id,
+      userName: user.userName,
+    });
+
     const { password, updatedAt, ...other } = user._doc;
     res.status(200).json(other);
   } catch (err) {
-    return res.status(500).json(err);
+    console.error("ユーザー情報取得エラー:", err);
+    return res.status(500).json({
+      message: "ユーザー情報の取得に失敗しました",
+      error: err.message,
+    });
   }
 });
 
