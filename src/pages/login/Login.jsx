@@ -1,6 +1,24 @@
 import React from "react";
 import "./Login.css";
+import { useRef } from "react";
+import { loginCall } from "../../ActionCalls";
+import { AuthContext } from "../../state/AuthContext";
+import { useContext } from "react";
 export default function Login() {
+  const email = useRef();
+  const password = useRef();
+  const { user, isFetching, error, dispatch } = useContext(AuthContext);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginCall(
+      {
+        email: email.current.value,
+        password: password.current.value,
+      },
+      dispatch
+    );
+  };
+  console.log(user);
   return (
     <div className="login">
       <div className="loginwrapper">
@@ -11,15 +29,26 @@ export default function Login() {
         <div className="loginright">
           <div className="loginbox">
             <p className="loginmsg">ログイン</p>
-            <input type="text" className="loginInput" placeholder="e-mail" />
-            <input
-              type="text"
-              className="loginInput"
-              placeholder="パスワード"
-            />
-            <button className="loginButton">ログイン</button>
-            <span className="loginforget">パスワードを忘れた方はこちら</span>
-            <button className="loginregisterbutton">新規登録</button>
+            <form onSubmit={(e) => handleSubmit(e)}>
+              <input
+                type="email"
+                className="loginInput"
+                placeholder="e-mail"
+                required
+                ref={email}
+              />
+              <input
+                type="password"
+                className="loginInput"
+                placeholder="パスワード"
+                required
+                minLength="6"
+                ref={password}
+              />
+              <button className="loginButton">ログイン</button>
+              <span className="loginforget">パスワードを忘れた方はこちら</span>
+              <button className="loginregisterbutton">新規登録</button>
+            </form>
           </div>
         </div>
       </div>

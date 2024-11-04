@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useParams } from "react-router-dom";
 
 const TestData = () => {
   const [user, setUser] = useState(null);
+  const { userName } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -12,11 +14,9 @@ const TestData = () => {
         setLoading(true);
 
         // MongoDBに実際に登録されているユーザーのIDを指定
-        const userId = "66f766a223bd0d37863d5edb  ";
+        const userId = "66f766a223bd0d37863d5edb";
 
-        const response = await axios.get(
-          `http://localhost:3001/api/users/${userId}`
-        );
+        const response = await axios.get(`/api/users/?userName=abc`);
         console.log("取得したデータ:", response.data); // レスポンスの確認用
         setUser(response.data);
         setError(null);

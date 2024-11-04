@@ -28,7 +28,7 @@
   font-size: 24px;
 }
 .loginbox {
-  height: 300px;
+  height: 500px;
   padding: 20px;
   background-color: white;
   border-radius: 10px;
@@ -36,7 +36,12 @@
   flex-direction: column;
   justify-content: space-between;
   box-shadow: 3px 7px 13px -10px #404755;
-  border-radius: 10px;
+}
+
+.loginbox form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .loginInput {
@@ -45,7 +50,7 @@
   border: 1px solid gray;
   font-size: 18px;
   padding-left: 20px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 .loginInput:focus {
   outline: none;

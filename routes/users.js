@@ -45,6 +45,29 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+//クエリでユーザー情報の取得
+router.get("/", async (req, res) => {
+  console.log("ユーザー情報取得リクエスト:", {
+    userId: req.params.id,
+  });
+  const userId = req.query.userId;
+  const userName = req.query.userName;
+  try {
+    const user = userId
+      ? await User.findById(userId)
+      : await User.findOne({ userName: userName });
+
+    const { password, updatedAt, ...other } = user._doc;
+    res.status(200).json(other);
+  } catch (err) {
+    console.error("ユーザー情報取得エラー:", err);
+    return res.status(500).json({
+      message: "ユーザー情報の取得に失敗しました",
+      error: err.message,
+    });
+  }
+});
+
 //ユーザーの削除
 router.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
