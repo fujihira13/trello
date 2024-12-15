@@ -7,12 +7,16 @@ const cors = require("cors");
 const PORT = 3001;
 const mongoose = require("mongoose");
 require("dotenv").config();
+const cookieParser = require("cookie-parser");
 
 //追加
+app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000", // Reactアプリのオリジン
+    origin: "http://localhost:3000",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -94,3 +98,6 @@ app.listen(PORT, () => {
 // app.get("/api/hello", (req, res) => {
 //   res.json({ message: "Hello from server!" });
 // });
+
+// ミドルウェアの設定
+app.use(cookieParser());

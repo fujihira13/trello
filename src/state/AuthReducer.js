@@ -2,7 +2,7 @@ const AuthReducer = (state, action) => {
   switch (action.type) {
     case "LOGIN_START":
       return {
-        user: null,
+        ...state,
         isFetching: true,
         error: false,
       };
@@ -18,8 +18,13 @@ const AuthReducer = (state, action) => {
         isFetching: false,
         error: action.payload,
       };
+    case "SET_LOADING":
+      return {
+        ...state,
+        isFetching: action.payload,
+      };
     default:
-      return state; //状態をそのまま返す
+      return state;
   }
 };
 

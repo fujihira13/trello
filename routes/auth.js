@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const User = require("../models/User");
+const jwt = require("jsonwebtoken");
+const auth = require("../middleware/auth");
 
 // 接続テスト用のエンドポイントを追加
 router.get("/", (req, res) => {
@@ -60,15 +62,38 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(404).send("ユーザーが見つかりません");
-    const vaildPassword = req.body.password === user.password;
-    if (!vaildPassword) return res.status(400).json("パスワードが違います");
-    return res.status(200).json(user);
-  } catch (err) {
-    return res.status(500).json({
-      message: "ログインに失敗しました",
-      error: err.message,
+    if (!user) return res.status(404).json("ユーザーが見つかりません");
+
+    const validPassword = req.body.password === user.password;
+    if (!validPassword) return res.status(400).json("パスワードが違います");
+
+    // JWTトークンの生成
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "24h",
     });
+
+    // クッキーにトークンを設定
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000, // 24時間
+    });
+
+    // パスワードを除外してユーザー情報を返す
+    const { password, ...userWithoutPassword } = user._doc;
+    return res.status(200).json(userWithoutPassword);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
+// ログイン状態チェックエンドポイントの追加
+router.get("/me", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "サーバーエラー" });
   }
 });
 
