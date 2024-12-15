@@ -1,9 +1,15 @@
+import React, { useContext } from "react";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
-import React, { useContext } from "react"; // useContextを追加
 import { AuthContext } from "../../../state/AuthContext";
-const TaskAddInput = ({ inputText, setInputText, setTaskList, taskList }) => {
-  // AuthContextから現在のユーザー情報を取得
+import axios from "axios";
+
+const TaskAddInput = ({
+  inputText,
+  setInputText,
+  setTaskList,
+  taskList,
+  cardId,
+}) => {
   const { user } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
@@ -12,18 +18,17 @@ const TaskAddInput = ({ inputText, setInputText, setTaskList, taskList }) => {
       return;
     }
 
-    const taskId = uuidv4();
-
     try {
-      // ユーザーがログインしているか確認
-      if (!user || !user._id) {
+      if (!user?._id) {
         throw new Error("ログインが必要です");
       }
 
       // バックエンドAPIに投稿を送信
       const response = await axios.post("/api/posts", {
-        userId: user._id, // AuthContextから取得したユーザーIDを使用
+        userId: user._id,
         desc: inputText,
+        parentCardId: cardId, // カードIDを含める
+        isCard: false,
       });
 
       if (response.data) {
@@ -31,10 +36,10 @@ const TaskAddInput = ({ inputText, setInputText, setTaskList, taskList }) => {
         setTaskList([
           ...taskList,
           {
-            id: taskId,
+            id: response.data._id,
             text: inputText,
-            draggableId: `task-${taskId}`,
-            postId: response.data._id,
+            draggableId: `task-${response.data._id}`,
+            userId: user._id,
           },
         ]);
 
@@ -42,7 +47,6 @@ const TaskAddInput = ({ inputText, setInputText, setTaskList, taskList }) => {
       }
     } catch (err) {
       console.error("投稿エラー:", err);
-      // より詳細なエラーメッセージを表示
       if (err.response) {
         alert(
           `投稿に失敗しました: ${
@@ -66,7 +70,7 @@ const TaskAddInput = ({ inputText, setInputText, setTaskList, taskList }) => {
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          placeholder="タスクを追加してください"
+          placeholder="タスクを追加して"
           className="taskAddInput"
           onChange={handleChange}
           value={inputText}

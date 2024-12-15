@@ -14,6 +14,14 @@ const postSchema = new mongoose.Schema(
       default: "today",
       max: 50,
     },
+    isCard: {
+      type: Boolean,
+      default: false,
+    },
+    parentCardId: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );

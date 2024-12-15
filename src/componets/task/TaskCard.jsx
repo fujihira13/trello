@@ -1,24 +1,13 @@
 import React, { useState } from "react";
-import TaskTitle from "./TaskTitle";
+import TaskCardTitle from "./TaskTitle";
 import TaskCardDeleteButton from "../Button/TaskCardDeleteButton";
 import TaskAddInput from "./input/TaskAddInput";
-import Taskes from "./Taskes";
+import Tasks from "./Taskes";
 import { Draggable } from "@hello-pangea/dnd";
 
-const TaskCard = ({
-  taskCardsList,
-  setTaskCardsList,
-  taskCard,
-  index,
-  tasks = [],
-}) => {
+const TaskCard = ({ taskCard, taskCardsList, setTaskCardsList, index }) => {
   const [inputText, setInputText] = useState("");
-  const [taskList, setTaskList] = useState(tasks);
-
-  const effectiveTaskId =
-    taskCard.id === "default-card" && tasks.length > 0
-      ? tasks[0].postId
-      : taskCard.id;
+  const [taskList, setTaskList] = useState(taskCard.tasks || []);
 
   return (
     <Draggable draggableId={taskCard.draggableId} index={index}>
@@ -32,10 +21,7 @@ const TaskCard = ({
             className="taskTitlleAndTaskDelete"
             {...provided.dragHandleProps}
           >
-            <TaskTitle
-              taskId={effectiveTaskId}
-              initialTitle={taskCard.title || "today"}
-            />
+            <TaskCardTitle taskId={taskCard.id} initialTitle={taskCard.title} />
             <TaskCardDeleteButton
               taskCardsList={taskCardsList}
               setTaskCardsList={setTaskCardsList}
@@ -47,11 +33,12 @@ const TaskCard = ({
             setInputText={setInputText}
             taskList={taskList}
             setTaskList={setTaskList}
+            cardId={taskCard.id}
           />
-          <Taskes
-            inputText={inputText}
+          <Tasks
             taskList={taskList}
             setTaskList={setTaskList}
+            cardId={taskCard.id}
           />
         </div>
       )}

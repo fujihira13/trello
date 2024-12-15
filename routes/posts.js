@@ -82,7 +82,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-//特定の投稿を取得する;
+//特定の投稿を取���する;
 router.get("/:id", async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -99,6 +99,32 @@ router.get("/profile/:userId", async (req, res) => {
     return res.status(200).json(posts);
   } catch (err) {
     return res.status(500).json(err);
+  }
+});
+
+// カードの取得
+router.get("/cards/:userId", async (req, res) => {
+  try {
+    const cards = await Post.find({
+      userId: req.params.userId,
+      isCard: true,
+    });
+    res.status(200).json(cards);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
+// カードに属するタスクの取得
+router.get("/tasks/:cardId", async (req, res) => {
+  try {
+    const tasks = await Post.find({
+      parentCardId: req.params.cardId,
+      isCard: false,
+    });
+    res.status(200).json(tasks);
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 

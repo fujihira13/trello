@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import TaskCard from "./TaskCard";
 import AddTaskCardButton from "../Button/AddTaskCardButton";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import TaskCard from "./TaskCard";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import axios from "axios";
 import { AuthContext } from "../../state/AuthContext";
 
@@ -10,37 +10,41 @@ const TaskCards = () => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchUserPosts = async () => {
+    const fetchTaskCards = async () => {
       if (!user?._id) return;
 
       try {
-        const response = await axios.get(`/api/posts/profile/${user._id}`);
+        // カードの取得
+        const cardsResponse = await axios.get(`/api/posts/cards/${user._id}`);
+        const cards = cardsResponse.data;
 
-        // 取得した投稿をタスクカード形式に変換
-        const tasks = response.data.map((post) => ({
-          id: post._id,
-          draggableId: `task-${post._id}`,
-          text: post.desc,
-          userId: post.userId,
-          title: post.title || "today",
-          postId: post._id,
-        }));
+        // 各カードに属するタスクを取得
+        const cardsWithTasks = await Promise.all(
+          cards.map(async (card) => {
+            const tasksResponse = await axios.get(
+              `/api/posts/tasks/${card._id}`
+            );
+            return {
+              id: card._id,
+              draggableId: `card-${card._id}`,
+              title: card.title || "新しいカード",
+              tasks: tasksResponse.data.map((task) => ({
+                id: task._id,
+                draggableId: `task-${task._id}`,
+                text: task.desc,
+                userId: task.userId,
+              })),
+            };
+          })
+        );
 
-        // 最初のタスクカードにタスクを設定
-        setTaskCardsList([
-          {
-            id: tasks.length > 0 ? tasks[0].postId : "default-card",
-            draggableId: "default-card",
-            tasks: tasks,
-            title: tasks.length > 0 ? tasks[0].title : "today",
-          },
-        ]);
+        setTaskCardsList(cardsWithTasks);
       } catch (err) {
-        console.error("投稿の取得に失敗しました:", err);
+        console.error("データの取得に失敗しました:", err);
       }
     };
 
-    fetchUserPosts();
+    fetchTaskCards();
   }, [user]);
 
   const handleDragEnd = (result) => {
@@ -52,33 +56,34 @@ const TaskCards = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="droppable" direction="horizontal">
-        {(provided) => (
-          <div
-            className="taskCarsArea"
-            {...provided.droppableProps}
-            ref={provided.innerRef}
-          >
-            {taskCardsList.map((taskCard, index) => (
-              <TaskCard
-                key={taskCard.id}
-                index={index}
-                taskCardsList={taskCardsList}
-                setTaskCardsList={setTaskCardsList}
-                taskCard={taskCard}
-                tasks={taskCard.tasks}
-              />
-            ))}
-            {provided.placeholder}
-            <AddTaskCardButton
-              taskCardsList={taskCardsList}
-              setTaskCardsList={setTaskCardsList}
-            />
-          </div>
-        )}
-      </Droppable>
-    </DragDropContext>
+    <div className="taskCarsArea">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="droppable" direction="horizontal">
+          {(provided) => (
+            <div
+              className="taskCardsArea"
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {taskCardsList.map((taskCard, index) => (
+                <TaskCard
+                  key={taskCard.id}
+                  index={index}
+                  taskCard={taskCard}
+                  taskCardsList={taskCardsList}
+                  setTaskCardsList={setTaskCardsList}
+                />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+      <AddTaskCardButton
+        taskCardsList={taskCardsList}
+        setTaskCardsList={setTaskCardsList}
+      />
+    </div>
   );
 };
 

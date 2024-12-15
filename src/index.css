@@ -31,6 +31,7 @@ header {
   margin: 10px 1%;
   background-color: rgb(228, 228, 228);
   border-radius: 5px;
+  min-width: 250px;
 }
 
 .taskCardTitleInputArea {
@@ -78,16 +79,19 @@ header {
   border: none;
 }
 
-.taskCarsArea {
+.taskCardsArea {
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
-  flex-wrap: wrap;
+  padding: 10px;
+  overflow-x: auto;
+  min-height: 100px;
 }
 
 .addTaskCardButtonArea {
   margin-left: 1%;
   margin-top: 25px;
+  display: inline-block;
 }
 
 .addTaskCardButton {
@@ -121,4 +125,11 @@ header {
   position: sticky;
   top: 0;
   z-index: 1000;
+}
+
+.taskCarsArea {
+  display: flex;
+  align-items: flex-start;
+  padding: 10px;
+  overflow-x: auto;
 }
