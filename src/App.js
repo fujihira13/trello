@@ -17,20 +17,9 @@ function App() {
   return (
     <Router>
       <div className="app">
+        {user && <Headers />}
         <Routes>
-          <Route
-            path="/"
-            element={
-              user ? (
-                <>
-                  <Headers />
-                  <TaskCards />
-                </>
-              ) : (
-                <Register />
-              )
-            }
-          />
+          <Route path="/" element={user ? <TaskCards /> : <Register />} />
           <Route
             path="/login"
             element={user ? <Navigate to="/" /> : <Login />}

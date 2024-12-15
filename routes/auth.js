@@ -97,6 +97,20 @@ router.get("/me", auth, async (req, res) => {
   }
 });
 
+// ログアウトエンドポイントを追加
+router.post("/logout", (req, res) => {
+  try {
+    // クッキーを削除
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+    return res.status(200).json({ message: "ログアウトしました" });
+  } catch (err) {
+    return res.status(500).json({ message: "ログアウトに失敗しました" });
+  }
+});
+
 // router.get("/", (req, res) => {
 //   res.send("auth router");
 // });
