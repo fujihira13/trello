@@ -22,14 +22,17 @@ const TaskCards = () => {
           draggableId: `task-${post._id}`,
           text: post.desc,
           userId: post.userId,
+          title: post.title || "today",
+          postId: post._id,
         }));
 
         // 最初のタスクカードにタスクを設定
         setTaskCardsList([
           {
-            id: "default-card",
+            id: tasks.length > 0 ? tasks[0].postId : "default-card",
             draggableId: "default-card",
             tasks: tasks,
+            title: tasks.length > 0 ? tasks[0].title : "today",
           },
         ]);
       } catch (err) {

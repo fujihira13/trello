@@ -14,8 +14,14 @@ const TaskCard = ({
 }) => {
   const [inputText, setInputText] = useState("");
   const [taskList, setTaskList] = useState(tasks);
+
+  const effectiveTaskId =
+    taskCard.id === "default-card" && tasks.length > 0
+      ? tasks[0].postId
+      : taskCard.id;
+
   return (
-    <Draggable draggableId={taskCard.id} index={index}>
+    <Draggable draggableId={taskCard.draggableId} index={index}>
       {(provided) => (
         <div
           className="taskCard"
@@ -26,7 +32,10 @@ const TaskCard = ({
             className="taskTitlleAndTaskDelete"
             {...provided.dragHandleProps}
           >
-            <TaskTitle />
+            <TaskTitle
+              taskId={effectiveTaskId}
+              initialTitle={taskCard.title || "today"}
+            />
             <TaskCardDeleteButton
               taskCardsList={taskCardsList}
               setTaskCardsList={setTaskCardsList}

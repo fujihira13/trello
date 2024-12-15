@@ -9,6 +9,11 @@ const postSchema = new mongoose.Schema(
       type: String,
       max: 250,
     },
+    title: {
+      type: String,
+      default: "today",
+      max: 50,
+    },
   },
   { timestamps: true }
 );

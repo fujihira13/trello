@@ -15,17 +15,55 @@ router.post("/", async (req, res) => {
 //投稿を更新する
 router.put("/:id", async (req, res) => {
   try {
+    console.log("更新リクエスト受信:", {
+      postId: req.params.id,
+      updateData: req.body,
+    });
+
     const post = await Post.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await post.updateOne({
-        $set: req.body,
-      });
-      return res.status(200).json("編集が完了しました");
+    if (!post) {
+      console.log("投稿が見つかりません:", req.params.id);
+      return res.status(404).json("投稿が見つかりません");
+    }
+
+    console.log("既存の投稿データ:", post);
+
+    if (String(post.userId) === String(req.body.userId)) {
+      const updateData = {};
+      if (req.body.desc !== undefined) updateData.desc = req.body.desc;
+      if (req.body.title !== undefined) updateData.title = req.body.title;
+
+      console.log("更新データ:", updateData);
+
+      const updatedPost = await Post.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: updateData,
+        },
+        { new: true }
+      );
+
+      console.log("更新後のデータ:", updatedPost);
+      return res.status(200).json(updatedPost);
     } else {
-      return res.status(403).json("他の人の投稿を編集できません");
+      console.log("権限エラー:", {
+        postUserId: post.userId,
+        requestUserId: req.body.userId,
+      });
+      return res.status(403).json("他のユーザーの投稿は編集できません");
     }
   } catch (err) {
-    return res.status(403).json(err);
+    console.error("更新エラーの詳細:", {
+      error: err,
+      stack: err.stack,
+      postId: req.params.id,
+      requestBody: req.body,
+    });
+    return res.status(500).json({
+      message: "投稿の更新に失敗しました",
+      error: err.message,
+      details: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
   }
 });
 
