@@ -54,4 +54,14 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// ユーザーの全投稿を取得する
+router.get("/profile/:userId", async (req, res) => {
+  try {
+    const posts = await Post.find({ userId: req.params.userId });
+    return res.status(200).json(posts);
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
 module.exports = router;

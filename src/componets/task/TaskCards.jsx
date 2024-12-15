@@ -1,21 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import TaskCard from "./TaskCard";
 import AddTaskCardButton from "../Button/AddTaskCardButton";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import axios from "axios";
+import { AuthContext } from "../../state/AuthContext";
 
 const TaskCards = () => {
-  const [taskCardsList, setTaskCardsList] = useState([
-    {
-      id: "0",
-      draggableId: "item0",
-    },
-  ]);
+  const [taskCardsList, setTaskCardsList] = useState([]);
+  const { user } = useContext(AuthContext);
+
+  useEffect(() => {
+    const fetchUserPosts = async () => {
+      if (!user?._id) return;
+
+      try {
+        const response = await axios.get(`/api/posts/profile/${user._id}`);
+
+        // 取得した投稿をタスクカード形式に変換
+        const tasks = response.data.map((post) => ({
+          id: post._id,
+          draggableId: `task-${post._id}`,
+          text: post.desc,
+          userId: post.userId,
+        }));
+
+        // 最初のタスクカードにタスクを設定
+        setTaskCardsList([
+          {
+            id: "default-card",
+            draggableId: "default-card",
+            tasks: tasks,
+          },
+        ]);
+      } catch (err) {
+        console.error("投稿の取得に失敗しました:", err);
+      }
+    };
+
+    fetchUserPosts();
+  }, [user]);
+
   const handleDragEnd = (result) => {
-    //Card並び替え
+    if (!result.destination) return;
+
     const remove = taskCardsList.splice(result.source.index, 1);
     taskCardsList.splice(result.destination.index, 0, remove[0]);
-    setTaskCardsList(taskCardsList);
+    setTaskCardsList([...taskCardsList]);
   };
+
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Droppable droppableId="droppable" direction="horizontal">
@@ -32,10 +64,10 @@ const TaskCards = () => {
                 taskCardsList={taskCardsList}
                 setTaskCardsList={setTaskCardsList}
                 taskCard={taskCard}
+                tasks={taskCard.tasks}
               />
             ))}
             {provided.placeholder}
-
             <AddTaskCardButton
               taskCardsList={taskCardsList}
               setTaskCardsList={setTaskCardsList}

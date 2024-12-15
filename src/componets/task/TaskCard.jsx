@@ -5,9 +5,15 @@ import TaskAddInput from "./input/TaskAddInput";
 import Taskes from "./Taskes";
 import { Draggable } from "@hello-pangea/dnd";
 
-const TaskCard = ({ taskCardsList, setTaskCardsList, taskCard, index }) => {
+const TaskCard = ({
+  taskCardsList,
+  setTaskCardsList,
+  taskCard,
+  index,
+  tasks = [],
+}) => {
   const [inputText, setInputText] = useState("");
-  const [taskList, setTaskList] = useState([]);
+  const [taskList, setTaskList] = useState(tasks);
   return (
     <Draggable draggableId={taskCard.id} index={index}>
       {(provided) => (
